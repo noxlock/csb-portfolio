@@ -1,7 +1,12 @@
 import React from 'react';
 
-export default function Project({ title }) {
+export default function Project({ id, title, isCompleted, onCompleted }) {
   return (
-    <div>{title}</div>
+    <div>
+      <label>
+        <input type="checkbox" checked={isCompleted} onChange={onCompleted} />
+        {title}
+      </label>
+    </div>
   )
 }

@@ -7,6 +7,7 @@ class App extends React.Component {
     super(props);
     this.state = { projects: null }
     // this.state = { projects: [] } ??
+    this.handleCompleted = this.handleCompleted.bind(this);
   }
 
   componentDidMount() {
@@ -17,20 +18,42 @@ class App extends React.Component {
       })
   }
 
+  handleCompleted(id) {
+    fetch('/api/projects', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id }),
+    })
+      .then(() => {
+        this.setState(prevState => {
+          const projects = prevState.projects.map(project => (
+            project.id === id ? (
+              Object.assign({}, project, { isCompleted: !project.isCompleted })
+            ) : (
+              project
+            )
+          ))
+          return { projects: projects };
+        });
+      });
+  }
+
   render() {
     const { projects } = this.state;
     return (
       <div className="App">
         <h1>Projects</h1>
-        <h2>
+        <div>
         {
           !!projects ? (
-            <Projects items={projects} />
+            <Projects items={projects} onCompleted={this.handleCompleted} />
           ) : (
             "Loading..."
           )
         }
-        </h2>
+        </div>
       </div>
     );
   }

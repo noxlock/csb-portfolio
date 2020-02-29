@@ -36,8 +36,9 @@ router.post('/projects', function(req, res) {
 
 // Update an existing project
 router.put('/projects', function(req, res) {
-  // const id = req.body.id;
-  console.dir(req.body);
+  const id = req.body.id;
+  const project = projects.find(p => (p.id === id))
+  project.isCompleted = !project.isCompleted;
   res.status(204).send();
 });
 

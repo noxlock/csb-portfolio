@@ -1,24 +1,25 @@
 const express = require('express');
+const shortId = require('shortid');
 const router = express.Router();
 
 const projects = [
   {
-    id: 666,
+    id: shortId.generate(),
     title: "Portfolio Website",
     isCompleted: false,
   },
   {
-    id: 667,
+    id: shortId.generate(),
     title: "Python Command Line App",
     isCompleted: true,
   },
   {
-    id: 668,
+    id: shortId.generate(),
     title: "Rails Two-Sided Marketplace",
     isCompleted: true,
   },
   {
-    id: 669,
+    id: shortId.generate(),
     title: "React + Node API Project",
     isCompleted: false,
   },
@@ -30,15 +31,21 @@ router.get('/projects', function(req, res) {
 
 // Insert into the projects array
 router.post('/projects', function(req, res) {
-  // Assign an id
+  const id = shortId.generate();
+  const project = Object.assign({}, req.body, { id });
+  projects.push(project);
+  console.dir(project)
   res.status(201).send();
 });
+
 
 // Update an existing project
 router.put('/projects', function(req, res) {
   const id = req.body.id;
+  const { title, isCompleted } = req.body;
   const project = projects.find(p => (p.id === id))
-  project.isCompleted = !project.isCompleted;
+  project.isCompleted = isCompleted;
+  project.title = title;
   res.status(204).send();
 });
 

@@ -8,8 +8,8 @@ class App extends React.Component {
     this.state = {
       projects: null,
       newProject: {
-        name: null,
-        isCompleted: null
+        title: '',
+        isCompleted: false
       }
     }
     this.handleCompleted = this.handleCompleted.bind(this);
@@ -48,15 +48,15 @@ class App extends React.Component {
   }
 
   handleFormChange(e) {
-    e.persist();
-    console.dir(e);
-    // this.setState(prevState => ({
-    //   projects: prevState.projects,
-    //   newProject: {
-    //     // isCompleted: ...
-    //     // title: ...
-    //   }
-    // }));
+    this.setState(prevState => {
+      const newProject = Object.assign(
+        {}, prevState.newProject, { [e.target.name]: e.target.value }
+      );
+      return {
+        projects: prevState.projects,
+        newProject
+      }
+    });
   }
 
   handleSubmit(e) {
@@ -92,7 +92,7 @@ class App extends React.Component {
           <div>
             <input
               type="text"
-              name="name"
+              name="title"
               placeholder="project title"
               value={this.state.newProject.title}
               onChange={this.handleFormChange}

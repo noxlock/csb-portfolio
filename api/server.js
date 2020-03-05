@@ -7,6 +7,7 @@ const port = 7000;
 server.use(bodyParser.json())
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use('/api', projectsRouter);
+server.use('/auth', require('./routes/auth.js'))
 
 server.listen(port, function () {
   console.log(`API Server is running on port ${port}`);

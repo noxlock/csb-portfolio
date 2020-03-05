@@ -1,5 +1,6 @@
 const express = require('express');
 const shortId = require('shortid');
+const { verify } = require('../middleware/auth');
 const router = express.Router();
 
 const projects = [
@@ -25,15 +26,6 @@ const projects = [
   },
 ];
 
-router.use(function(req, res, next) {
-  console.dir(req.headers)
-  if (req.headers.authorization) {
-    next();
-  } else {
-    res.status(401).end()
-  }
-})
-
 router.get('/projects', function(req, res) {
   res.json(projects);
 });
@@ -44,7 +36,7 @@ router.get('/projects/:id', function(req, res) {
 })
 
 // Insert into the projects array
-router.post('/projects', function(req, res) {
+router.post('/projects', verify, function(req, res) {
   const id = shortId.generate();
   const project = Object.assign({}, req.body, { id });
   projects.push(project);

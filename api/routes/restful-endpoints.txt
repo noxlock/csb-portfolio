@@ -1,0 +1,9 @@
+For a PROJECTS resource
+
+1.  index GET /projects
+2.  show GET /projects/:id
+3a. edit GET /projects/:id/edit
+3b. update PUT /projects/:id
+4a. new GET /projects/new
+4b. create POST /projects
+5.  delete DELETE /projects/:id

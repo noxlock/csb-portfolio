@@ -48,9 +48,10 @@ class App extends React.Component {
   }
 
   handleFormChange(e) {
+    const { name, value } = e.target;
     this.setState(prevState => {
       const newProject = Object.assign(
-        {}, prevState.newProject, { [e.target.name]: e.target.value }
+        {}, prevState.newProject, { [name]: value }
       );
       return {
         projects: prevState.projects,
@@ -61,6 +62,20 @@ class App extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    fetch('/api/projects', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.state.newProject),
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(prevState => {
+        const projects = prevState.projects.concat(json)
+        return { projects };
+      });
+    });
   }
 
   render() {

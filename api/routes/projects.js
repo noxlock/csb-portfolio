@@ -34,8 +34,7 @@ router.post('/projects', function(req, res) {
   const id = shortId.generate();
   const project = Object.assign({}, req.body, { id });
   projects.push(project);
-  console.dir(project)
-  res.status(201).send();
+  res.status(201).json(project);
 });
 
 

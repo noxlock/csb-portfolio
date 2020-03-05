@@ -25,9 +25,23 @@ const projects = [
   },
 ];
 
+router.use(function(req, res, next) {
+  console.dir(req.headers)
+  if (req.headers.authorization) {
+    next();
+  } else {
+    res.status(401).end()
+  }
+})
+
 router.get('/projects', function(req, res) {
   res.json(projects);
 });
+
+router.get('/projects/:id', function(req, res) {
+  // const id = req.body.id;
+  const id = req.params.id;
+})
 
 // Insert into the projects array
 router.post('/projects', function(req, res) {
@@ -36,7 +50,6 @@ router.post('/projects', function(req, res) {
   projects.push(project);
   res.status(201).json(project);
 });
-
 
 // Update an existing project
 router.put('/projects', function(req, res) {

@@ -17,7 +17,8 @@ function issueJwt(req, res, next) {
   const { user } = req;
   req.token = jwt.sign(
     user,
-    process.env.JWT_TOKEN
+    process.env.JWT_TOKEN,
+    { expiresIn: '1m' }
   );
   next();
 }

@@ -13,6 +13,34 @@ function verify(req, res, next) {
   });
 }
 
+function issueJwt(req, res, next) {
+  const { user } = req;
+  req.token = jwt.sign(
+    user,
+    process.env.JWT_TOKEN
+  );
+  next();
+}
+
+function authoriseUser(req, res, next) {
+  const { username, password } = req.body;
+  if (username == 'betty' && password == 'password1') {
+    req.user = { id: 666, name: 'betty' }
+    next();
+  } else {
+    res.status(401).end();
+  }
+}
+
+function registerUser(req, res, next) {
+  const { username } = req.body;
+  req.user = { id: 666, name: username };
+  next();
+}
+
 module.exports = {
-  verify
+  verify,
+  authoriseUser,
+  registerUser,
+  issueJwt
 }

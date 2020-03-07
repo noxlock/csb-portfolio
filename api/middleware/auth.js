@@ -2,15 +2,20 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 function verify(req, res, next) {
-  const token = req.headers.authorization.split(' ').pop();
-  jwt.verify(token, process.env.JWT_TOKEN, function(err, payload) {
-    if (err) {
-      res.status(401).send(err)
-    } else {
-      req.user = payload;
-      next();
-    }
-  });
+  const header = req.headers.authorization
+  if (!!header) {
+    const token = header.split(' ').pop();
+    jwt.verify(token, process.env.JWT_TOKEN, function(err, payload) {
+      if (err) {
+        res.status(401).send(err)
+      } else {
+        req.user = payload;
+        next();
+      }
+    });
+  } else {
+    res.status(401).end();
+  }
 }
 
 function issueJwt(req, res, next) {
@@ -18,7 +23,7 @@ function issueJwt(req, res, next) {
   req.token = jwt.sign(
     user,
     process.env.JWT_TOKEN,
-    { expiresIn: '1m' }
+    { expiresIn: '30m' }
   );
   next();
 }

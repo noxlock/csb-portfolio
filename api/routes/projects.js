@@ -26,7 +26,7 @@ const projects = [
   },
 ];
 
-router.get('/projects', function(req, res) {
+router.get('/projects', verify, function(req, res) {
   res.json(projects);
 });
 

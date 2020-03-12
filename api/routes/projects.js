@@ -2,55 +2,68 @@ const express = require('express');
 const shortId = require('shortid');
 const { verify } = require('../middleware/auth');
 const router = express.Router();
-
-const projects = [
-  {
-    id: shortId.generate(),
-    title: "Portfolio Website",
-    isCompleted: false,
-  },
-  {
-    id: shortId.generate(),
-    title: "Python Command Line App",
-    isCompleted: true,
-  },
-  {
-    id: shortId.generate(),
-    title: "Rails Two-Sided Marketplace",
-    isCompleted: true,
-  },
-  {
-    id: shortId.generate(),
-    title: "React + Node API Project",
-    isCompleted: false,
-  },
-];
+const Project = require('../models/Project');
 
 router.get('/projects', verify, function(req, res) {
-  res.json(projects);
+  Project.find()
+    .then((projects) => {
+      res.json(projects);
+    })
+    .catch((error) => {
+      res.json({ error });
+    })
 });
 
-router.get('/projects/:id', function(req, res) {
-  // const id = req.body.id;
+router.get('/projects/:id', verify, function(req, res) {
   const id = req.params.id;
+  Project.findById(id)
+    .then(project => {
+      if (project) {
+        res.json(project);
+      } else {
+        return Promise.reject({ message: `Project ${id} not found` })
+      }
+    })
+    .catch(error => {
+      res.status(404).json({ error })
+    })
 })
 
 // Insert into the projects array
 router.post('/projects', verify, function(req, res) {
-  const id = shortId.generate();
-  const project = Object.assign({}, req.body, { id });
-  projects.push(project);
-  res.status(201).json(project);
+  const attrs = req.body
+  Project.create(attrs)
+    .then(project => {
+      res.status(201).json(project);
+    })
+    .catch(error => {
+      res.status(404).json({ error });
+    })
 });
 
 // Update an existing project
-router.put('/projects', function(req, res) {
-  const id = req.body.id;
-  const { title, isCompleted } = req.body;
-  const project = projects.find(p => (p.id === id))
-  project.isCompleted = isCompleted;
-  project.title = title;
-  res.status(204).send();
+router.put('/projects/:id', verify, function(req, res) {
+  const id = req.params.id;
+  const attrs = req.body;
+  Project.findByIdAndUpdate(id, attrs)
+    .then(project => {
+      res.status(204).json(project);
+    })
+    .catch(error => {
+      res.status(404).json({ error });
+    })
+});
+
+// Destroy an existing project
+router.delete('/projects/:id', verify, function(req, res) {
+  const id = req.params.id;
+  Project.findByIdAndDelete(id)
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch(error => {
+      res.status(404).send(error)
+    })
 });
 
 module.exports = router;

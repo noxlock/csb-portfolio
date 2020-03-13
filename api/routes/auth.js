@@ -7,7 +7,7 @@ require('dotenv').config();
 
 router.post('/verify', verify, function(req, res) {
   const { user } = req;
-  res.json({ user });
+  res.json(user);
 });
 
 router.post('/login', authoriseUser, issueJwt, function(req, res) {

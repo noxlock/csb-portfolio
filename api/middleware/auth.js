@@ -1,7 +1,12 @@
 const passport = require('passport');
 const passportJwt = require('passport-jwt');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 require('dotenv').config();
+
+/*
+ * JWT Authentication
+ */
 
 passport.use(new passportJwt.Strategy(
   {
@@ -10,41 +15,60 @@ passport.use(new passportJwt.Strategy(
     algorithms: ['HS256'],
   },
   (payload, done) => {
-    const user = payload;
-    done(null, user);
+    const id = payload.sub;
+    User.findById(id)
+      .then(user => {
+        if (user) {
+          done(null, user);
+        } else {
+          done(null, false);
+        }
+      })
+      .catch(error => {
+        done(error, false)
+      });
   }
 ));
 
 function issueJwt(req, res, next) {
   const { user } = req;
   req.token = jwt.sign(
-    user,
+    { username: user.username },
     process.env.JWT_TOKEN,
-    { expiresIn: '30m' }
+    {
+      expiresIn: '30m',
+      subject: user._id.toString(),
+    }
   );
   next();
 }
 
-function authoriseUser(req, res, next) {
-  const { username, password } = req.body;
-  if (username == 'betty' && password == 'password1') {
-    req.user = { id: 666, name: 'betty' }
-    next();
-  } else {
-    res.status(401).end();
-  }
-}
+/*
+ * Local authentication
+ */
+
+passport.use(User.createStrategy());
 
 function registerUser(req, res, next) {
-  const { username } = req.body;
-  req.user = { id: 666, name: username };
-  next();
+  const user = new User({
+    username: req.body.username,
+  });
+
+  User.register(user, req.body.password, (error, user) => {
+    if (error) {
+      next(error);
+      return;
+    }
+
+    req.user = user;
+    next();
+  });
 }
 
 module.exports = {
   initialize: passport.initialize.bind(passport),
   verify: passport.authenticate('jwt', { session: false }),
-  authoriseUser,
+  authoriseUser: passport.authenticate('local', { session: false }),
   registerUser,
   issueJwt
 }

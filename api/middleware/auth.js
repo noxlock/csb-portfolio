@@ -1,22 +1,19 @@
+const passport = require('passport');
+const passportJwt = require('passport-jwt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-function verify(req, res, next) {
-  const header = req.headers.authorization
-  if (!!header) {
-    const token = header.split(' ').pop();
-    jwt.verify(token, process.env.JWT_TOKEN, function(err, payload) {
-      if (err) {
-        res.status(401).send(err)
-      } else {
-        req.user = payload;
-        next();
-      }
-    });
-  } else {
-    res.status(401).end();
+passport.use(new passportJwt.Strategy(
+  {
+    jwtFromRequest: passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.JWT_TOKEN,
+    algorithms: ['HS256'],
+  },
+  (payload, done) => {
+    const user = payload;
+    done(null, user);
   }
-}
+));
 
 function issueJwt(req, res, next) {
   const { user } = req;
@@ -45,7 +42,8 @@ function registerUser(req, res, next) {
 }
 
 module.exports = {
-  verify,
+  initialize: passport.initialize.bind(passport),
+  verify: passport.authenticate('jwt', { session: false }),
   authoriseUser,
   registerUser,
   issueJwt

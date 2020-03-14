@@ -1,4 +1,6 @@
 const Project = require('./Project');
+const User = require('./User');
+
 
 Project.create([
   {
@@ -18,3 +20,19 @@ Project.create([
     isCompleted: false,
   },
 ]);
+
+User.register(
+  {
+    username: 'betty',
+    email: 'betty@coderacademy.edu.au'
+  },
+  'password1'
+)
+
+User.register(
+  {
+    username: 'sam',
+    email: 'sam@google.com'
+  },
+  'password1'
+)

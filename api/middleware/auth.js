@@ -19,7 +19,11 @@ passport.use(new passportJwt.Strategy(
     User.findById(id)
       .then(user => {
         if (user) {
-          done(null, user);
+          done(null, {
+            _id: user._id,
+            email: user.email,
+            roles: payload.roles,
+          });
         } else {
           done(null, false);
         }
@@ -33,7 +37,10 @@ passport.use(new passportJwt.Strategy(
 function issueJwt(req, res, next) {
   const { user } = req;
   req.token = jwt.sign(
-    { username: user.username },
+    {
+      username: user.username,
+      roles: rolesForUser(user),
+    },
     process.env.JWT_TOKEN,
     {
       expiresIn: '30m',
@@ -65,10 +72,35 @@ function registerUser(req, res, next) {
   });
 }
 
+function rolesForUser(user) {
+  let roles = [ 'projects:read' ]
+  if (/@coderacademy.edu.au$/.test(user.email)) {
+    roles.push('projects:write')
+  }
+  return roles;
+}
+
+
+function authoriseRole(role) {
+  return function(req, res, next) {
+    const user = req.user;
+    const roles = user.roles;
+
+    if (roles.indexOf(role) === -1) {
+      let error = new Error(`User must have role ${role}`);
+      error.status = 401; // Authorised
+      next(error);
+    } else {
+      next();
+    }
+  }
+}
+
 module.exports = {
   initialize: passport.initialize.bind(passport),
   verify: passport.authenticate('jwt', { session: false }),
   authoriseUser: passport.authenticate('local', { session: false }),
+  authoriseRole,
   registerUser,
   issueJwt
 }

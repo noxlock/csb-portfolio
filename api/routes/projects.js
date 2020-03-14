@@ -1,10 +1,10 @@
 const express = require('express');
 const shortId = require('shortid');
-const { verify } = require('../middleware/auth');
+const { verify, authoriseRole } = require('../middleware/auth');
 const router = express.Router();
 const Project = require('../models/Project');
 
-router.get('/projects', verify, function(req, res) {
+router.get('/projects', verify, authoriseRole('projects:read'), function(req, res) {
   Project.find()
     .then((projects) => {
       res.json(projects);
@@ -30,7 +30,7 @@ router.get('/projects/:id', verify, function(req, res) {
 })
 
 // Insert into the projects array
-router.post('/projects', verify, function(req, res) {
+router.post('/projects', verify, authoriseRole('projects:write'), function(req, res) {
   const attrs = req.body
   Project.create(attrs)
     .then(project => {
